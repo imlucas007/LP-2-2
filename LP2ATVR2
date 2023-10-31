@@ -1,0 +1,183 @@
+package LP2ATVR2;
+
+import java.io.*;
+import java.util.*;
+
+class Produto implements Serializable {
+    private int id;
+    private String nome;
+    private double preco;
+
+    public Produto(int id, String nome, double preco) {
+        this.id = id;
+        this.nome = nome;
+        this.preco = preco;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+}
+
+class Cliente implements Serializable {
+    private int id;
+    private String nome;
+
+    public Cliente(int id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+}
+
+public class LojaSoftware {
+    private Map<Integer, Produto> produtos;
+    private Map<Integer, Cliente> clientes;
+    private static final String FILENAME = "dados.dat";
+
+    public LojaSoftware() {
+        produtos = new HashMap<>();
+        clientes = new HashMap<>();
+    }
+
+    public void gravarDadosEmArquivo() {
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(FILENAME))) {
+            outputStream.writeObject(produtos);
+            outputStream.writeObject(clientes);
+            System.out.println("Dados gravados em arquivo.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void recuperarDadosDeArquivo() {
+        try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(FILENAME))) {
+            produtos = (Map<Integer, Produto>) inputStream.readObject();
+            clientes = (Map<Integer, Cliente>) inputStream.readObject();
+            System.out.println("Dados recuperados do arquivo.");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void realizarCompra(int clienteId, int produtoId) {
+        Cliente cliente = clientes.get(clienteId);
+        Produto produto = produtos.get(produtoId);
+
+        if (cliente != null && produto != null) {
+            System.out.println("Compra realizada por " + cliente.getNome() + ": " +
+                    produto.getNome() + " por R$" + produto.getPreco());
+        } else {
+            System.out.println("Cliente ou produto não encontrado.");
+        }
+    }
+
+    public void mostrarRelatorioDeCompra(int clienteId) {
+        Cliente cliente = clientes.get(clienteId);
+        if (cliente != null) {
+            double totalGasto = 0;
+            System.out.println("Relatório de compras para " + cliente.getNome() + ":");
+            for (Produto produto : produtos.values()) {
+                System.out.println("Produto: " + produto.getNome() + " | Preço: R$" + produto.getPreco());
+                totalGasto += produto.getPreco();
+            }
+            System.out.println("Total gasto: R$" + totalGasto);
+        } else {
+            System.out.println("Cliente não encontrado.");
+        }
+    }
+
+    public void adicionarProduto(int id, String nome, double preco) {
+        Produto produto = new Produto(id, nome, preco);
+        produtos.put(id, produto);
+        System.out.println("Produto adicionado com sucesso.");
+    }
+
+    public void removerProduto(int id) {
+        produtos.remove(id);
+        System.out.println("Produto removido com sucesso.");
+    }
+
+    public void adicionarCliente(int id, String nome) {
+        Cliente cliente = new Cliente(id, nome);
+        clientes.put(id, cliente);
+        System.out.println("Cliente adicionado com sucesso.");
+    }
+
+    public static void main(String[] args) {
+        LojaSoftware loja = new LojaSoftware();
+        Scanner scanner = new Scanner(System.in);
+
+        int opcao;
+        do {
+            System.out.println("Opções:");
+            System.out.println("1. Gravar dados em arquivo");
+            System.out.println("2. Recuperar dados de arquivo");
+            System.out.println("3. Realizar compra");
+            System.out.println("4. Mostrar relatório de compra");
+            System.out.println("5. Adicionar produto");
+            System.out.println("6. Remover produto");
+            System.out.println("7. Adicionar cliente");
+            System.out.println("0. Sair");
+            System.out.print("Escolha uma opção: ");
+            opcao = scanner.nextInt();
+
+            switch (opcao) {
+                case 1:
+                    loja.gravarDadosEmArquivo();
+                    break;
+                case 2:
+                    loja.recuperarDadosDeArquivo();
+                    break;
+                case 3:
+                    System.out.print("ID do cliente: ");
+                    int clienteId = scanner.nextInt();
+                    System.out.print("ID do produto: ");
+                    int produtoId = scanner.nextInt();
+                    loja.realizarCompra(clienteId, produtoId);
+                    break;
+                case 4:
+                    System.out.print("ID do cliente para o relatório: ");
+                    int clienteIdParaRelatorio = scanner.nextInt();
+                    loja.mostrarRelatorioDeCompra(clienteIdParaRelatorio);
+                    break;
+                case 5:
+                    System.out.print("ID do produto: ");
+                    int novoProdutoId = scanner.nextInt();
+                    System.out.print("Nome do produto: ");
+                    String novoProdutoNome = scanner.next();
+                    System.out.print("Preço do produto: ");
+                    double novoProdutoPreco = scanner.nextDouble();
+                    loja.adicionarProduto(novoProdutoId, novoProdutoNome, novoProdutoPreco);
+                    break;
+                case 6:
+                    System.out.print("ID do produto a ser removido: ");
+                    int produtoRemoverId = scanner.nextInt();
+                    loja.removerProduto(produtoRemoverId);
+                    break;
+                case 7:
+                    System.out.print("ID do cliente: ");
+                    int novoClienteId = scanner.nextInt();
+                    System.out.print("Nome do cliente: ");
+                    String novoClienteNome = scanner.next();
+                    loja.adicionarCliente(novoClienteId, novoClienteNome);
+                    break;
+            }
+        } while (opcao != 0);
+    }
+}
