@@ -1,0 +1,119 @@
+using System;
+using MySql.Data.MySqlClient;
+
+class Program
+{
+    static void Main()
+    {
+        string connectionString = "server=seu_host;user=seu_usuario;password=sua_senha;database=nova_base_de_dados";
+        MySqlConnection conexao = new MySqlConnection(connectionString);
+
+        try
+        {
+            conexao.Open();
+
+            //  Criar tabela Estudante
+            CriarTabelaEstudante(conexao);
+
+            //  Inserir dados na tabela Estudante
+            InserirEstudante("Nome do Estudante", "123456789", 123456789, conexao);
+            Console.WriteLine("Dados inseridos com sucesso!");
+
+            //  Inserir dados recebendo como parâmetro
+            InserirEstudante("Nome do Estudante 2", "987654321", 987654321, conexao);
+            Console.WriteLine("Dados inseridos com sucesso!");
+
+            //  Procurar e mostrar na tela o id, nome, telefone e cpf
+            Console.WriteLine("Dados da tabela Estudante:");
+            MostrarDadosEstudante(conexao);
+
+            //  Procurar e mostrar na tela o id, nome, telefone
+            Console.WriteLine("Dados da tabela Estudante (sem CPF):");
+            MostrarDadosEstudanteSemCPF(conexao);
+
+            //  Atualizar dados de um estudante
+            AtualizarEstudante(1, "Novo Nome", "999999999", 111111111, conexao);
+            Console.WriteLine("Dados do estudante atualizados com sucesso!");
+
+            // Procurar e mostrar na tela o nome e telefone
+            Console.WriteLine("Dados da tabela Estudante (somente nome e telefone):");
+            MostrarNomeTelefoneEstudante(conexao);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Erro: " + ex.Message);
+        }
+        finally
+        {
+            conexao.Close();
+        }
+    }
+
+    static void CriarTabelaEstudante(MySqlConnection conexao)
+    {
+        string sql = "CREATE TABLE IF NOT EXISTS Estudante (" +
+                     "Idestudante INT AUTO_INCREMENT PRIMARY KEY," +
+                     "Nome VARCHAR(45) NOT NULL," +
+                     "Telefone VARCHAR(15) NOT NULL," +
+                     "Cpf INT(11) NOT NULL)";
+        MySqlCommand cmd = new MySqlCommand(sql, conexao);
+        cmd.ExecuteNonQuery();
+    }
+
+    static void InserirEstudante(string nome, string telefone, int cpf, MySqlConnection conexao)
+    {
+        string sql = "INSERT INTO Estudante (Nome, Telefone, Cpf) VALUES (@Nome, @Telefone, @Cpf)";
+        MySqlCommand cmd = new MySqlCommand(sql, conexao);
+        cmd.Parameters.AddWithValue("@Nome", nome);
+        cmd.Parameters.AddWithValue("@Telefone", telefone);
+        cmd.Parameters.AddWithValue("@Cpf", cpf);
+        cmd.ExecuteNonQuery();
+    }
+
+    static void MostrarDadosEstudante(MySqlConnection conexao)
+    {
+        string sql = "SELECT * FROM Estudante";
+        MySqlCommand cmd = new MySqlCommand(sql, conexao);
+        MySqlDataReader reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            Console.WriteLine($"Id: {reader["Idestudante"]}, Nome: {reader["Nome"]}, Telefone: {reader["Telefone"]}, CPF: {reader["Cpf"]}");
+        }
+        reader.Close();
+    }
+
+    static void MostrarDadosEstudanteSemCPF(MySqlConnection conexao)
+    {
+        string sql = "SELECT Idestudante, Nome, Telefone FROM Estudante";
+        MySqlCommand cmd = new MySqlCommand(sql, conexao);
+        MySqlDataReader reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            Console.WriteLine($"Id: {reader["Idestudante"]}, Nome: {reader["Nome"]}, Telefone: {reader["Telefone"]}");
+        }
+        reader.Close();
+    }
+
+    static void AtualizarEstudante(int id, string novoNome, string novoTelefone, int novoCpf, MySqlConnection conexao)
+    {
+        string sql = "UPDATE Estudante SET Nome = @Nome, Telefone = @Telefone, Cpf = @Cpf WHERE Idestudante = @Id";
+        MySqlCommand cmd = new MySqlCommand(sql, conexao);
+        cmd.Parameters.AddWithValue("@Nome", novoNome);
+        cmd.Parameters.AddWithValue("@Telefone", novoTelefone);
+        cmd.Parameters.AddWithValue("@Cpf", novoCpf);
+        cmd.Parameters.AddWithValue("@Id", id);
+        cmd.ExecuteNonQuery();
+    }
+
+    static void MostrarNomeTelefoneEstudante(MySqlConnection conexao)
+    {
+        string sql = "SELECT Nome, Telefone FROM Estudante";
+        MySqlCommand cmd = new MySqlCommand(sql, conexao);
+        MySqlDataReader reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            Console.WriteLine($"Nome: {reader["Nome"]}, Telefone: {reader["Telefone"]}");
+        }
+        reader.Close();
+    }
+}
