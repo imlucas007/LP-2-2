@@ -12,30 +12,23 @@ class Program
         {
             conexao.Open();
 
-            //  Criar tabela Estudante
             CriarTabelaEstudante(conexao);
 
-            //  Inserir dados na tabela Estudante
             InserirEstudante("Nome do Estudante", "123456789", 123456789, conexao);
             Console.WriteLine("Dados inseridos com sucesso!");
 
-            //  Inserir dados recebendo como parâmetro
             InserirEstudante("Nome do Estudante 2", "987654321", 987654321, conexao);
             Console.WriteLine("Dados inseridos com sucesso!");
 
-            //  Procurar e mostrar na tela o id, nome, telefone e cpf
             Console.WriteLine("Dados da tabela Estudante:");
             MostrarDadosEstudante(conexao);
 
-            //  Procurar e mostrar na tela o id, nome, telefone
             Console.WriteLine("Dados da tabela Estudante (sem CPF):");
             MostrarDadosEstudanteSemCPF(conexao);
 
-            //  Atualizar dados de um estudante
             AtualizarEstudante(1, "Novo Nome", "999999999", 111111111, conexao);
             Console.WriteLine("Dados do estudante atualizados com sucesso!");
 
-            // Procurar e mostrar na tela o nome e telefone
             Console.WriteLine("Dados da tabela Estudante (somente nome e telefone):");
             MostrarNomeTelefoneEstudante(conexao);
         }
